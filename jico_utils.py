@@ -211,7 +211,3 @@ class JiCoUtils:
 test = JiCoUtils(credentials.SERVER_URL['PROD'], 'tst.log')
 print(test.reminder_before_closing_ticket('ESSD-30074', 'A62K7GX'))
 
-
-# commit 1
-# commit 2
-# commit 3
