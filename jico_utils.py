@@ -1,3 +1,4 @@
+from tokenize import Comment
 import credentials
 import requests
 import json
@@ -7,7 +8,7 @@ import logging
 class JiCoUtils:
     
     def __init__(self, server_base_url, log_file_name) -> None:
-        self.SLEEP_SEC = 1.0
+        self.SLEEP_SEC = 0.1
         self.server_base_url = server_base_url
         self.logging = logging
         logging.basicConfig(filename=log_file_name, 
@@ -99,17 +100,18 @@ class JiCoUtils:
         return True
 
     def search_jira_issues(self, jql, fields_list):
-        url = '{self.server_base_url}/jira/rest/api/2/search'
+        url = f'{self.server_base_url}/jira/rest/api/2/search'
 
         headers = {
            "accept": "application/json",
            "authorization": f"bearer " + self.__get_api_token(url),
         }
 
+        # neveim kolko je max, ale default hodnota je 50
         params={
             "jql": jql,
             "startAt": 0,
-            "maxResults": 15,
+            "maxResults": 10000,
             "fields": fields_list
         }
 
@@ -206,8 +208,71 @@ class JiCoUtils:
         return self.create_comment(body_reminder_before_closing, issue_key, True)
 
 
+    def is_tabelle_in_comments(self, key):
+        tag = 'Type of permission'
+        comments = test.get_comments_from_jira_issue(key)
+
+        for comment in comments:
+            if tag in comment['body']:
+                return True
+        return False
+
+    def get_issue(self, issue_key):
+        url = f"{self.server_base_url}/jira/rest/api/2/issue/{issue_key}"
+
+        headers = {
+           "accept": "application/json",
+           "authorization": f"bearer " + self.__get_api_token(url),
+        }
+
+        params={
+            "fields": "customfield_10202"
+        }
+
+        response = requests.request(
+           "GET",
+           url,
+           headers=headers,
+           params=params,
+        )
+
+        time.sleep(self.SLEEP_SEC)
+        return json.loads(response.text)
+
+    def is_remove_access_ticket(self, issue_key):
+        request_type = self.get_issue(issue_key)['fields']['customfield_10202']['requestType']['name']
+        if request_type.lower() == 'remove access':
+            return True
+        return False
 
 
-test = JiCoUtils(credentials.SERVER_URL['PROD'], 'tst.log')
-print(test.reminder_before_closing_ticket('ESSD-30074', 'A62K7GX'))
+
+# --------------------------------------
+# Add Approver table to Access requests
+def main_add_approver_table():
+    test = JiCoUtils(credentials.SERVER_URL['PROD'], 'find_no_table.log')
+    test.logging.info('Start\n')
+
+    jql_query = 'type = "Access Request" AND project = "PMT X-Solution Support" and status = Resolved AND Organization = "PMT (PMT Solution)" AND "Support Level" in \
+                ("E3 NextGen Support") AND resolution not in (Canceled, Cancelled, Closed)'
+
+    all_ars = test.search_jira_issues(jql_query, ["key"])
+    print(len(all_ars))
+
+    key_list = [entry['key'] for entry in all_ars]
+
+    for key in key_list:
+        if not test.is_tabelle_in_comments(key):
+            if not test.is_remove_access_ticket(key):
+                print(key)
+                test.logging.info('Found {}'.format(key))
+
+
+#print('done')
+#test.is_tabelle_in_comments(key)
+
+# --------------------------------------
+
+#all_ars = json.dumps(test.get_issue('ESSD-29655'), indent=4)
+
 

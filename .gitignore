@@ -1,2 +1,4 @@
 *.log
 credentials.py
+.vs
+__pycache__
