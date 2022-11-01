@@ -1,19 +1,13 @@
 from jico_utils import JiCoUtils
 import credentials
-from datetime import datetime
+from datetime import datetime, timedelta
 
-#jico = JiCoUtils(credentials.SERVER_URL['PROD'], '01_reminder_5plus2_days_after_PO_request.log')
+N_DAYS_AGO = 25
 
 
-#jico.do_transition('ESSD-30408', '191', 'Canceled')
+def get_date_string_n_days_ago(n_days):
+    today = datetime.now()    
+    n_days_ago = today - timedelta(days=n_days)
+    return ('{:%Y/%m/%d}'.format(n_days_ago))
 
-#print(jico.get_transitions('ESSD-30408'))
-
-groups_raw='abc({'
-def clean_trailing_non_letters(input_str):
-    while True:
-        if not input_str[-1:].isalpha():
-            input_str = input_str[:-1]
-        else:
-            break
-    return input_str
+print(get_date_string_n_days_ago(3))

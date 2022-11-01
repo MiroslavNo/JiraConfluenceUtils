@@ -1,7 +1,7 @@
 from jico_utils import JiCoUtils
 import credentials
 import webbrowser
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def user_continue_question(msg=None):
     if msg is not None:
@@ -9,9 +9,14 @@ def user_continue_question(msg=None):
     else:
         input('Continue? [ENTER]')
 
+def get_date_string_n_days_ago(n_days):
+    today = datetime.now()    
+    n_days_ago = today - timedelta(days=n_days)
+    return ('{:%Y/%m/%d}'.format(n_days_ago))
+
 def reminder_after_PO_request(jico):
-    # using 6d, because if the script is running in the morning, the 7d will mature during the day
-    jql = 'assignee = currentUser() AND resolution = Unresolved AND updated <= -6d'
+    # using 6d, because it is searching for LESS THAN, eg. 7 and more (less and equal was not working properly)
+    jql = 'assignee = currentUser() AND resolution = Unresolved AND updated < "{}"'.format(get_date_string_n_days_ago(6))
     all_ars = jico.search_jira_issues(jql, ["key"])
     key_list = [entry['key'] for entry in all_ars]
 
@@ -28,19 +33,16 @@ def reminder_after_PO_request(jico):
 
     return positive_cases
 
-
 def close_3days_after_2nd_reminder(jico):
-    # POZN: tuto necahj 3 a 5 aj ked to bezi arno, je to predsa len zatvorenie -> aby si bol na strane bezpecnej
     # get day in the week. Nr. 3 is thursday and 4 is Friday
     dt = datetime.now()
     weekday = dt.weekday()
     if weekday in [3, 4]:
-        jql_param = 3
+        n_days_ago = 2
     else: 
-        # if not Thursday or Friday, take 3+2 days for the weekend
-        jql_param = 5
+        n_days_ago = 4
 
-    jql = f'assignee = currentUser() AND resolution = Unresolved AND updated <= -{jql_param}d'
+    jql = 'assignee = currentUser() AND resolution = Unresolved AND updated < "{}"'.format(get_date_string_n_days_ago(n_days_ago))
     all_ars = jico.search_jira_issues(jql, ["key"])
     key_list = [entry['key'] for entry in all_ars]
 

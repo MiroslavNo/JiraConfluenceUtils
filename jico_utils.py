@@ -21,7 +21,7 @@ class JiCoUtils:
             return credentials.API_CREDS['token_jira']
 
     def __get_users_ids_from_group(self, group_name, start=0, limit=200):
-        self.logging.info('__get_users_ids_from_group(group_name={},start={},limit={})'.format(group_name, start, limit))
+        self.logging.debug('__get_users_ids_from_group(group_name={},start={},limit={})'.format(group_name, start, limit))
         url = f"{self.server_base_url}/confluence/rest/api/group/{group_name}/member"
 
         headers = {
@@ -56,7 +56,7 @@ class JiCoUtils:
         return r_list, size
 
     def get_users_ids_from_group(self, group_name):
-        self.logging.info('get_users_ids_from_group(group_name={})'.format(group_name))
+        self.logging.debug('get_users_ids_from_group(group_name={})'.format(group_name))
         start = 0
         limit = 200
         step = limit
@@ -71,7 +71,7 @@ class JiCoUtils:
         return r
 
     def add_users_to_group(self, space_name, group_name, members_list):
-        self.logging.info('set_users_from_group(group_name={},group_name={},group_name={})'.format(space_name, group_name, members_list))
+        self.logging.debug('set_users_from_group(group_name={},group_name={},group_name={})'.format(space_name, group_name, members_list))
         url = "https://devstack.vwgroup.com/confluence/rest/csum/latest/public/group/addusers"
 
         headers = {
@@ -100,7 +100,8 @@ class JiCoUtils:
 
     def __search_jira_issues_limit_results(self, jql, fields_list, start=0, limit=1000):
         url = f'{self.server_base_url}/jira/rest/api/2/search'
-
+        self.logging.debug('__search_jira_issues_limit_results(jql={},fields_list={},start={},limit={})'.format(jql, fields_list, start, limit))
+        
         headers = {
            "accept": "application/json",
            "authorization": f"bearer " + self.__get_api_token(url),
@@ -187,7 +188,7 @@ class JiCoUtils:
         return self.__check_last_comment(issue_key, canned_reminder_1)
 
     def is_last_comment_canned_reminder_nr2(self, issue_key):
-        canned_reminder_2 = 'this is a friendly reminder that your ticket has been waiting for approval. In order to proceed we need an approval from an internal PO/PM or higher. Should we not receive any answer in the next 3 working days, we will close your ticket'
+        canned_reminder_2 = 'this is a friendly reminder that your ticket has been waiting for approval. In order to proceed we need an approval from an internal PO/PM or higher. Should we not receive any answer in the next 3 days, we will close your ticket'
         return self.__check_last_comment(issue_key, canned_reminder_2)
 
     def create_comment(self, comment_str, issue_key, internal_bool):
@@ -296,7 +297,7 @@ class JiCoUtils:
 
     def get_transitions(self, issueID):
         '''
-        you can read here about all possible transitions from the current state
+        you can read in the response about all possible transitions from the current state
         '''
         url = f"{self.server_base_url}/jira/rest/api/2/issue/{issueID}/transitions"
 
