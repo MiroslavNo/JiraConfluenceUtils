@@ -41,7 +41,7 @@ def grant_access():
     ticket_id = 'ESSD-{}'.format(ticket_id)
 
     # open in browser?
-    if user_confirmation('Open ticket in brower?'):
+    if user_confirmation('Open ticket in browser?'):
         webbrowser.open('https://devstack.vwgroup.com/jira/browse/{}'.format(ticket_id))
 
     # get status - accept only support investigated (1st version)
@@ -93,6 +93,7 @@ def grant_access():
     # check if users in the groups already, if yes print warn and ask confirmation to continue
     skip_list = list()
     for group in groups:
+        print('Reading users of the group {}'.format(group))
         group_members = jico.get_users_ids_from_group(group) 
         for user_id in user_ids:
             if user_id in group_members:

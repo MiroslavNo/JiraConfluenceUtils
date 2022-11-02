@@ -63,9 +63,9 @@ def close_3days_after_2nd_reminder(jico):
                 continue
 
             canned_msg_close = f'Hi [~{ticket_reporter}],\r\n\r\nI will close the ticket for now. Please do not hesitate to reopen it if you need further support. This can be done by commenting on the ticket.\r\n\r\nBest regards\r\nMiroslav'
-            print('Sending reminder on ticket {}'.format(key))
+            print('Closing ticket {} - add comment'.format(key))
             jico.create_comment(canned_msg_close, key, internal_bool=False)
-            print('Closing ticket {}'.format(key))
+            print('Closing ticket {} - status transition'.format(key))
             jico.do_transition(key, status_transition_id, 'Closed')
 
     return positive_cases
