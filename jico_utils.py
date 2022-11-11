@@ -62,7 +62,7 @@ class JiCoUtils:
         step = limit
         r = list()
 
-        size=step
+        size = step
         while size == step:
             r_sub, size = self.__get_users_ids_from_group(group_name, start=start, limit=limit)
             start += step
@@ -79,7 +79,7 @@ class JiCoUtils:
            "authorization": f"bearer " + self.__get_api_token(url),
         }
 
-        params={
+        params = {
             "spaceKey": space_name,
             "spaceGroups": group_name,
             "spaceUsers": ','.join(members_list),
@@ -94,7 +94,7 @@ class JiCoUtils:
         time.sleep(self.SLEEP_SEC)
 
         if response.status_code != 200:
-            self.logging.error ('Error: {} when trying to SET the users for the group {}'.format(response.status_code, group_name))
+            self.logging.error('Error: {} when trying to SET the users for the group {}'.format(response.status_code, group_name))
             return False
         return True
 
@@ -177,8 +177,7 @@ class JiCoUtils:
             return False
 
         last_comment_body = comments[-1]['body']
-        canned_reminder_1 = 'thank you for your request. The ticket is now in the approval status. To grant the access, we need the approval of an internal PO/PM or higher. If you know someone who can approve your request please share this issue with them and let them approve the request via a comment on the ticket.'
-        
+
         if tag in last_comment_body:
             return True
         return False
@@ -323,7 +322,7 @@ class JiCoUtils:
            "authorization": f"bearer " + self.__get_api_token(url),
         }
 
-        params=json.dumps({
+        params = json.dumps({
             "transition": {
                 "id": str(transition_id)
             },
@@ -342,6 +341,67 @@ class JiCoUtils:
         )
 
         return response.text
+
+    def get_confiform_data(self, page_id, form_name):
+        url = f"{self.server_base_url}/confluence/rest/confiforms/1.0/raw/{page_id}/{form_name}"
+
+        headers = {
+            "accept": "application/json",
+            "authorization": f"bearer " + self.__get_api_token(url),
+        }
+
+        response = requests.request(
+            "GET",
+            url,
+            headers=headers,
+        )
+
+        return response.text
+
+    def get_user_data_confluence(self, devstack_id):
+        url = f"{self.server_base_url}/confluence/rest/api/user"
+
+        headers = {
+            "accept": "application/json",
+            "authorization": f"bearer " + self.__get_api_token(url),
+        }
+
+        params = {
+           "username": devstack_id
+        }
+
+        response = requests.request(
+            "GET",
+            url,
+            headers=headers,
+            params=params
+        )
+
+        return response.text
+
+    def get_user_data_jira(self, devstack_id):
+        url = f"{self.server_base_url}/jira/rest/api/2/user"
+
+        headers = {
+            "accept": "application/json",
+            "authorization": f"bearer " + self.__get_api_token(url),
+        }
+
+        params = {
+           "username": devstack_id
+        }
+
+        response = requests.request(
+            "GET",
+            url,
+            headers=headers,
+            params=params
+        )
+
+        return response.text
+
+    def get_user_email(self, devstack_id):
+        return json.loads(self.get_user_data_jira(devstack_id))['emailAddress']
 
 
         

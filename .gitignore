@@ -1,4 +1,8 @@
 *.log
+*.csv
+*.xlsx
+*.pickle
 credentials.py
 .vs
+.idea
 __pycache__

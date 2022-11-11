@@ -61,27 +61,34 @@ def grant_access():
 
     # read groups from comment
     user_groups_comment = find_usergroups_comment(jico, ticket_comments)
-    groups = 'cgm-pmt-users' + user_groups_comment.split('cgm-pmt-users')[1]
+    # groups = 'cgm-pmt-users' + user_groups_comment.split('cgm-pmt-users')[1]
+    groups = user_groups_comment.split(r'Group:')[1]
+
+    if groups.startswith(r'{*}|*'):
+        groups = groups[5:]
+    if groups.startswith('*|*'):
+        groups = groups[3:]
+
     groups = groups.split('*')[0]
     if groups[-1:] == ';':
         groups = groups[:-1]
     groups_raw = groups.replace(" ", "")
-    
-    # Group clean ups
+
+    # Group cleanups
     groups_raw = clean_trailing_non_letters(groups_raw)
-    if 'cgm-pmt-consumers-read' in groups_raw:
+    if 'cgm-pmt-consumers-read' in groups_raw and 'cgm-pmt-consumers-read-china' not in groups_raw:
         print('WARN: Removing cgm-pmt-consumers-read from groups - PLEASE ADD MANUALLY IN CONFLUENCE - opening..')
         groups_raw = groups_raw.replace("cgm-pmt-consumers-read;", "")
         groups_raw = groups_raw.replace(";cgm-pmt-consumers-read", "")
         pmtc_read_confluence_page = True
         webbrowser.open('https://devstack.vwgroup.com/confluence/display/PMTCS/PMT-consumer-read+Ticket+Approvals')
-    if 'cgm-pmt-consumer-read' in groups_raw:
+    if 'cgm-pmt-consumer-read' in groups_raw and 'cgm-pmt-consumer-read-china' not in groups_raw:
         print('WARN: Removing cgm-pmt-consumer-read from groups - PLEASE ADD MANUALLY IN CONFLUENCE - opening..')
         groups_raw = groups_raw.replace("cgm-pmt-consumer-read;", "")
         groups_raw = groups_raw.replace(";cgm-pmt-consumer-read", "")
         pmtc_read_confluence_page = True
         webbrowser.open('https://devstack.vwgroup.com/confluence/display/PMTCS/PMT-consumer-read+Ticket+Approvals')
-    if 'cgm-pmtc-consumers-write' in groups_raw:
+    if 'cgm-pmtc-consumers-write' in groups_raw and 'cgm-pmtc-consumers-write-china' not in groups_raw:
         groups_raw = groups_raw.replace("cgm-pmtc-consumers-write", "cgm-pmtc-consumer-write")
     
     groups = groups_raw.split(';')

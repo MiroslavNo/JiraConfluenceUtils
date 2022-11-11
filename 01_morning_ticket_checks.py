@@ -15,7 +15,7 @@ def get_date_string_n_days_ago(n_days):
     return ('{:%Y/%m/%d}'.format(n_days_ago))
 
 def reminder_after_PO_request(jico):
-    # using 6d, because it is searching for LESS THAN, eg. 7 and more (less and equal was not working properly)
+    # using 6d, because it is searching for LESS THAN, e.g. 7 and more (less and equal was not working properly)
     jql = 'assignee = currentUser() AND resolution = Unresolved AND updated < "{}"'.format(get_date_string_n_days_ago(6))
     all_ars = jico.search_jira_issues(jql, ["key"])
     key_list = [entry['key'] for entry in all_ars]
