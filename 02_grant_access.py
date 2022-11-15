@@ -108,6 +108,7 @@ def grant_access():
                 print('WARN: User {} is already a member of the group {}'.format(user_id, group))
     
     # add to groups
+    changes_made = False
     for group in groups:
         # GROUP CHECKS AND EDITS
         if group in ['cgm-pmt-consumers-read', 'cgm-pmt-consumer-read']:
@@ -119,6 +120,7 @@ def grant_access():
         # parse group to space and name - TODO ako je name gruppy, ci cele alebo len koniec
         for user_id in user_ids:
             if '{}{}'.format(user_id, group) not in skip_list:
+                changes_made = True
                 members_list = list()
                 members_list.append(user_id)
                 space_name = group.split('-')[1]
@@ -127,7 +129,10 @@ def grant_access():
             else:
                 print('Skipping {} into {} because was already there'.format(user_id, group))
     
-    # check if adding succesfull
+    if not changes_made:
+        user_continue_question('WARN - NO CHANGES WERE MADE, CONTINUE TO CLOSE THE TICKET?')
+
+    # check if adding successful
     err = False
     for group in groups:
         group_members = jico.get_users_ids_from_group(group) 
