@@ -3,7 +3,7 @@ import credentials
 import webbrowser
 
 def find_collecteddata_comment(jico_obj, comments):
-    return jico_obj.find_certain_comment(comments, '| *Username* |')
+    return jico_obj.find_certain_comment(comments, '*Username*')
 
 def find_usergroups_comment(jico_obj, comments):
     return jico_obj.find_certain_comment(comments, 'Type of permission')
@@ -40,10 +40,6 @@ def grant_access():
         return
     ticket_id = 'ESSD-{}'.format(ticket_id)
 
-    # open in browser?
-    if user_confirmation('Open ticket in browser?'):
-        webbrowser.open('https://devstack.vwgroup.com/jira/browse/{}'.format(ticket_id))
-
     # get status - accept only support investigated (1st version)
     ticket_object = jico.get_issue(ticket_id)
     ticket_status = jico.get_issue_status_from_issue_obj(ticket_object)
@@ -54,9 +50,16 @@ def grant_access():
     ticket_comments = jico.get_comments_from_jira_issue(ticket_id)
 
     # read user IDs from comment from andreas
-    user_ids_comment = find_collecteddata_comment(jico, ticket_comments)
-    user_ids = ''.join(user_ids_comment.split(' |\n| *Full name* |')[:-1])
-    user_ids = ''.join(user_ids.split('| *Username* | ')[1:])
+    user_ids = find_collecteddata_comment(jico, ticket_comments)
+    # split prev version
+    # user_ids = ''.join(user_ids.split(' |\n| *Full name* |')[:-1])
+    # user_ids = ''.join(user_ids.split('| *Username* | ')[1:])
+    # user_ids = user_ids.split(', ')
+    
+    user_ids = ''.join(user_ids.split('Username')[1:])
+    user_ids = ''.join(user_ids.split('Full name')[0])
+    user_ids = ''.join(user_ids.split('|')[1])
+    user_ids = user_ids.strip()
     user_ids = user_ids.split(', ')
 
     # read groups from comment
@@ -95,7 +98,7 @@ def grant_access():
 
     # ask user confirmation if IDs and groups are correct
     print('Following users ({}) were found: {}'.format(len(user_ids), user_ids))
-    print('Following groups ({}) were found: {}'.format(len(groups), groups_raw))  
+    print('Following groups ({}) were found: {}'.format(len(groups), groups_raw))
 
     # check if users in the groups already, if yes print warn and ask confirmation to continue
     skip_list = list()

@@ -13,6 +13,8 @@ class JiCoUtils:
         logging.basicConfig(filename=log_file_name, 
                             encoding='utf-8', format='%(asctime)s - %(levelname)s - %(message)s', 
                             level=logging.DEBUG)
+        self.canned_reminder_body_1 = 'thank you for your request. The ticket is now in the approval status. To grant the access, we need the approval of an internal PO/PM or higher. If you know someone who can approve your request please share this issue with them and let them approve the request via a comment on the ticket.'
+        self.canned_reminder_body_2 = 'this is a friendly reminder that your ticket has been waiting for approval. In order to proceed we need an approval from an internal PO/PM or higher. Should we not receive any answer in the next 3 days, we will close your ticket'
 
     def __get_api_token(self, url):
         if '/confluence/' in url:
@@ -183,12 +185,10 @@ class JiCoUtils:
         return False
 
     def is_last_comment_canned_reminder_nr1(self, issue_key):
-        canned_reminder_1 = 'thank you for your request. The ticket is now in the approval status. To grant the access, we need the approval of an internal PO/PM or higher. If you know someone who can approve your request please share this issue with them and let them approve the request via a comment on the ticket.'
-        return self.__check_last_comment(issue_key, canned_reminder_1)
+        return self.__check_last_comment(issue_key, self.canned_reminder_body_1)
 
     def is_last_comment_canned_reminder_nr2(self, issue_key):
-        canned_reminder_2 = 'this is a friendly reminder that your ticket has been waiting for approval. In order to proceed we need an approval from an internal PO/PM or higher. Should we not receive any answer in the next 3 days, we will close your ticket'
-        return self.__check_last_comment(issue_key, canned_reminder_2)
+        return self.__check_last_comment(issue_key, self.canned_reminder_body_2)
 
     def create_comment(self, comment_str, issue_key, internal_bool):
         url = f"{self.server_base_url}/jira/rest/api/2/issue/{issue_key}/comment"
@@ -224,9 +224,7 @@ class JiCoUtils:
         return True
 
     def reminder_before_closing_ticket(self, issue_key, reporter_id):
-        body_reminder_before_closing = f'Hello [~{reporter_id}] ,\n\nthis is a friendly reminder that your ticket is still waiting for approval. \
-                                        In order to proceed we need an approval from an internal PO/PM or higher. Should we not receive any answer in the next 3 days, \
-                                        we will close your ticket.\n\nBest regards,\nMiroslav'
+        body_reminder_before_closing = f'Hello [~{reporter_id}] ,\n\n{self.canned_reminder_body_2}.\n\nBest regards,\nMiroslav'
         return self.create_comment(body_reminder_before_closing, issue_key, True)
 
     def find_certain_comment(self, comments, searched_tags):

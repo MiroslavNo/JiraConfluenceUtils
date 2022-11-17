@@ -27,7 +27,7 @@ def reminder_after_PO_request(jico):
             positive_cases.append(key)
             # get requester
             ticket_reporter = jico.get_ticket_reporter(key)
-            canned_reminder = f'Hi [~{ticket_reporter}],\r\n\r\nthis is a friendly reminder that your ticket has been waiting for approval. In order to proceed we need an approval from an internal PO/PM or higher. Should we not receive any answer in the next 3 working days, we will close your ticket.\r\n\r\nBest regards\r\nMiroslav'
+            canned_reminder = f'Hi [~{ticket_reporter}],\r\n\r\n{jico.canned_reminder_body_2}.\r\n\r\nBest regards\r\nMiroslav'
             print('Sending reminder on issue {}'.format(key))
             jico.create_comment(canned_reminder, key, internal_bool=False)
 
